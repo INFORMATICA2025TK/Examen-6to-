@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Evaluación: Funciones Lógicas - Unidad Educativa Túpac Katari</title>
+  <style>
+    :root{--bg:#f6f8fc;--card:#ffffff;--accent:#4f46e5;--muted:#6b7280;--good:#16a34a;--bad:#dc2626}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 100%);color:#111827}
+    .wrap{max-width:920px;margin:28px auto;padding:22px}
+    header{display:flex;gap:18px;align-items:center}
+    .brand{background:linear-gradient(90deg,#eef2ff,#eefbf5);padding:12px;border-radius:12px;flex:1}
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    p.lead{margin:6px 0 0;color:var(--muted)}
+    .card{background:var(--card);border-radius:12px;padding:18px;margin-top:18px;box-shadow:0 6px 20px rgba(15,23,42,0.06)}
+    .form-row{display:flex;gap:8px;align-items:center}
+    label{font-size:13px;color:var(--muted)}
+    input[type="text"]{flex:1;padding:10px;border-radius:8px;border:1px solid #e6eef8;background:#fbfdff}
+    .questions{margin-top:12px;display:grid;gap:12px}
+    .q{border:1px solid #eef2ff;padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfcff)}
+    .q h4{margin:0 0 8px;font-size:15px}
+    .opts{display:flex;gap:8px;flex-wrap:wrap}
+    .opt{flex:1;min-width:120px;background:#fff;border:1px solid #e6eef8;padding:10px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px}
+    .opt input{accent-color:var(--accent)}
+    .actions{display:flex;gap:10px;align-items:center;margin-top:18px}
+    button.btn{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    button.ghost{background:transparent;border:1px solid #e6eef8;color:var(--muted)}
+    .result{margin-top:16px;padding:12px;border-radius:10px;display:none;align-items:center;gap:12px}
+    .result .score{font-size:26px;font-weight:700}
+    .result .stat{font-size:14px;color:var(--muted)}
+    .correct{color:var(--good)}.wrong{color:var(--bad)}
+    footer{margin-top:18px;font-size:13px;color:var(--muted);text-align:center}
+    @media (max-width:640px){.opt{min-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>Unidad Educativa Túpac Katari</h1>
+        <p class="lead">Evaluación: Funciones Lógicas (SI, Y, O, SI.ERROR y SI anidados) — Nota sobre 100</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+        <div style="flex:1">
+          <label>Apellidos y Nombres</label>
+          <input id="studentName" type="text" placeholder="Escribe aquí los apellidos y nombres" />
+        </div>
+        <div style="width:180px">
+          <label>Grado / Grupo (opcional)</label>
+          <input id="group" type="text" placeholder="Ej.: 5to A" />
+        </div>
+      </div>
+
+      <div class="questions" id="questions">
+        <!-- Preguntas generadas por JavaScript -->
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="calcBtn">Calcular Nota</button>
+        <button class="ghost" id="resetBtn">Limpiar respuestas</button>
+        <button class="ghost" id="printBtn">Imprimir / Descargar PDF</button>
+      </div>
+
+      <div class="result card" id="resultBox" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="score" id="scoreText">0 / 100</div>
+          <div class="stat" id="passText">Estado: --</div>
+          <div class="stat" id="detailsText"></div>
+        </div>
+        <div style="text-align:right">
+          <div class="stat">Alumno:</div>
+          <div style="font-weight:600" id="studentText"></div>
+          <div class="stat" id="metaText"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>Diseño: Modern app • Aprobado desde 51/100 • Puedes abrir este archivo en cualquier navegador</footer>
+  </div>
+
+  <script>
+    // Preguntas y respuestas correctas (A,B,C,D)
+    const preguntas = [
+      {q: '¿Qué devuelve la función SI en Excel?', a:['Evalúa una condición y devuelve un valor si es verdadero o falso','Suma valores numéricos','Busca valores en una tabla','Redondea un número'],'correct':'A'},
+      {q: '¿Cuál de las siguientes funciones permite evaluar varias condiciones al mismo tiempo?', a:['O','Y','SI.ERROR','SUMAR.SI'],'correct':'B'},
+      {q: '¿Qué resultado da la fórmula =SI(5>3;"Sí";"No")?', a:['No','Sí','0','Error'],'correct':'B'},
+      {q: '¿Qué hace la función O en Excel?', a:['Devuelve VERDADERO si todas las condiciones son verdaderas','Devuelve FALSO si todas las condiciones son falsas','Devuelve VERDADERO si al menos una condición es verdadera','Devuelve un error'],'correct':'C'},
+      {q: '¿Cuál es el resultado de =Y(VERDADERO;FALSO)?', a:['VERDADERO','FALSO','1','0'],'correct':'B'},
+      {q: 'La función SI.ERROR sirve para:', a:['Mostrar “ERROR” en una celda','Evitar que aparezcan errores mostrando un valor alternativo','Corregir errores ortográficos','Convertir texto en número'],'correct':'B'},
+      {q: '¿Cuál de estas fórmulas está correctamente anidada?', a:['=SI(A1>10;"Mayor";"Menor")','=SI(A1>10;"Mayor";SI(A1>5;"Medio";"Bajo"))','=Y(A1>10;"Mayor";"Menor")','=O(A1>10;"Mayor";"Menor")'],'correct':'B'},
+      {q: 'En SI.ERROR(B2/A2;0) si A2 es 0, ¿qué muestra Excel?', a:['#¡DIV/0!','0','1','Error'],'correct':'B'},
+      {q: '¿Qué devuelve la fórmula =O(2>5;4>1)?', a:['FALSO','VERDADERO','ERROR','1'],'correct':'B'},
+      {q: '¿Qué devuelve =SI(Y(5>2;4>3);"Correcto";"Incorrecto")?', a:['Correcto','Incorrecto','FALSO','#¡VALOR!'],'correct':'A'}
+    ];
+
+    const questionsDiv = document.getElementById('questions');
+
+    function createQuestions(){
+      preguntas.forEach((p, idx)=>{
+        const div = document.createElement('div'); div.className='q';
+        const qnum = idx+1;
+        div.innerHTML = `<h4>${qnum}. ${p.q}</h4>`;
+        const opts = document.createElement('div'); opts.className='opts';
+        ['A','B','C','D'].forEach((letter, i)=>{
+          const opt = document.createElement('label'); opt.className='opt';
+          opt.innerHTML = `<input type="radio" name="q${idx}" value="${letter}" /> <strong>${letter}</strong>&nbsp;<span style="font-size:14px">${p.a[i]}</span>`;
+          opts.appendChild(opt);
+        });
+        div.appendChild(opts);
+        questionsDiv.appendChild(div);
+      });
+    }
+
+    createQuestions();
+
+    function calculate(){
+      let correctCount = 0;
+      const answers = [];
+      preguntas.forEach((p, idx)=>{
+        const sel = document.querySelector(`input[name=q${idx}]:checked`);
+        const value = sel ? sel.value : null;
+        answers.push(value);
+        if(value && value === p.correct) correctCount++;
+      });
+      // Cada pregunta vale 10 puntos (10 * 10 = 100)
+      const score = correctCount * 10;
+      const passThreshold = 51; // definido por ti
+      const passed = score >= passThreshold;
+
+      // Mostrar resultado
+      document.getElementById('scoreText').textContent = `${score} / 100`;
+      document.getElementById('passText').textContent = `Estado: ${passed ? 'Aprobado' : 'Reprobado'}`;
+      document.getElementById('studentText').textContent = document.getElementById('studentName').value || '—';
+      document.getElementById('metaText').textContent = `Aciertos: ${correctCount} de ${preguntas.length}`;
+
+      // Detalle pequeño con colores
+      const details = preguntas.map((p, i)=>{
+        const ans = answers[i] ? answers[i] : '—';
+        const ok = answers[i] === p.correct;
+        return `${i+1}. ${ok ? '✔' : '✖'} (tu: ${ans} / correcta: ${p.correct})`;
+      }).join(' \n');
+      document.getElementById('detailsText').textContent = '';
+
+      // Mostrar y colorear
+      const box = document.getElementById('resultBox');
+      box.style.display = 'flex';
+      if(passed) box.style.borderLeft = `6px solid ${getComputedStyle(document.documentElement).getPropertyValue('--good') || '#16a34a'}`;
+      else box.style.borderLeft = `6px solid ${getComputedStyle(document.documentElement).getPropertyValue('--bad') || '#dc2626'}`;
+
+      // Insert list of details as tooltip-like text (but keep concise)
+      const detailsElem = document.getElementById('detailsText');
+      detailsElem.textContent = 'Detalles: ' + preguntas.map((p,i)=> (answers[i] ? (answers[i]===p.correct?`${i+1}✔`:`${i+1}✖`) : `${i+1}—`)).join(' ');
+
+      return {score, correctCount, answers};
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', ()=>{
+      calculate();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      // limpiar radios
+      preguntas.forEach((p, idx)=>{
+        const sel = document.querySelectorAll(`input[name=q${idx}]`);
+        sel.forEach(s=>s.checked = false);
+      });
+      document.getElementById('studentName').value = '';
+      document.getElementById('group').value = '';
+      document.getElementById('resultBox').style.display = 'none';
+    });
+
+    document.getElementById('printBtn').addEventListener('click', ()=>{
+      // actualizar resultado antes de imprimir
+      calculate();
+      // abrir diálogo de impresión (el usuario puede seleccionar "Guardar como PDF")
+      window.print();
+    });
+
+    // Hacer que al pulsar Enter en el campo nombre no envíe nada raro
+    document.getElementById('studentName').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('calcBtn').click(); } });
+
+    // Para accesibilidad: permitir seleccionar la opción al hacer click en la tarjeta
+    document.addEventListener('click', (e)=>{
+      if(e.target && e.target.closest && e.target.closest('.opt')){
+        const input = e.target.closest('.opt').querySelector('input');
+        if(input) input.checked = true;
+      }
+    });
+
+  </script>
+</body>
+</html>
